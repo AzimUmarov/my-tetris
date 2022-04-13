@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <link rel="stylesheet" href="styles.css">
+    <title>My Tetris</title>
+  </head>
+  <body>
+  <div class="game">
+      <canvas id="game" class="game-place"></canvas>
+  </div>
+
+  <div class="status">
+    <img id = "logo" src="images/logo.jpg">
+    <p></p>
+    <canvas id="next" class="next"></canvas>
+    <canvas id="hold" class="hold"></canvas>
+    <div class="gray">
+      <p>Score: <span id="score">0</span></p>
+      <p>Lines: <span id="lines">0</span></p>
+      <p>Level: <span id="level">0</span></p>
+    </div>
+      <button onclick="countdown(this)" >Start/Pause</button>
+      <button class="music-button" data-playing="false" role="switch" aria-checked="false"> sound</button>
+      <span id="timer"></span>
+  </div>
+
+  <div class="controller">
+      <h3>CONTROLS:</h3>
+      <div>
+        <img src="images/up_arrow_key.webp" alt="up">
+        <p>ROTATE</p>
+      </div>
+      <div>
+        <img src="images/left_arrow_key.jfif" alt="left">
+        <p>LEFT</p>
+      </div>
+      <div>
+        <img src="images/right_arrow_key.jfif" alt="right">
+        <p>RIGHT</p>
+      </div>
+      <div>
+        <img src="images/donw_arrow_key.png" alt="down">
+        <p>DOWN</p>
+      </div>
+      <div>
+        <img src="images/space_key.png" alt="space">
+        <p>HARD DROP</p>
+      </div>
+      <div>
+        <img src="images/esc_2.jpg" alt="esc" class="esc">
+        <p class="esc">END GAME</p>
+      </div>
+      <div>
+        <img src="images/c_letter_key.webp" alt="c">
+        <p>HOLD PIECE</p>
+      </div>
+  </div>
+    <audio src='audio/TetrisThemeMusic.ogg'></audio>
+    <script type="text/javascript" src="constants.js"></script>
+    <script type="text/javascript" src="playfield.js"></script>
+    <script type="text/javascript" src="tetrominos.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="audio.js"></script>
+
+  </body>
+</html>

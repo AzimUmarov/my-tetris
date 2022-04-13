@@ -1,4 +1,4 @@
-const canvas = document.getElementById('board');
+const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 const canvasNext = document.getElementById('next');
@@ -11,46 +11,46 @@ const ctxHold = canvasHold.getContext('2d');
 const audioElement = document.querySelector('audio');
 const playButton = document.querySelector('.music-button');
 
-let accountValues = {
+let playerStatus = {
   score: 0,
   level: 0,
   lines: 0
 };
 
-function updateAccount(key, value) {
+function updatePlayer(key, value) {
   let element = document.getElementById(key);
   if (element) {
     element.textContent = value;
   }
 }
 
-let account = new Proxy(accountValues, {
+let player = new Proxy(playerStatus, {
   set: (target, key, value) => {
     target[key] = value;
-    updateAccount(key, value);
+    updatePlayer(key, value);
     return true;
   }
 });
 
 moves = {
-  [KEY.LEFT]:   (p) => ({ ...p, x: p.x - 1 }),
-  [KEY.RIGHT]:  (p) => ({ ...p, x: p.x + 1 }),
-  [KEY.DOWN]:   (p) => ({ ...p, y: p.y + 1 }),
-  [KEY.SPACE]:  (p) => ({ ...p, y: p.y + 1 }),
-  [KEY.UP]:     (p) => board.rotate(p, ROTATION.RIGHT),
-  [KEY.Q]:      (p) => board.rotate(p, ROTATION.LEFT),
-  [KEY.C]:      (p) => board.swap()
+  [keys.LEFT]:   (p) => ({ ...p, x: p.x - 1 }),
+  [keys.RIGHT]:  (p) => ({ ...p, x: p.x + 1 }),
+  [keys.DOWN]:   (p) => ({ ...p, y: p.y + 1 }),
+  [keys.SPACE]:  (p) => ({ ...p, y: p.y + 1 }),
+  [keys.UP]:     (p) => place.rotate(p, rotation.RIGHT),
+  [keys.Q]:      (p) => place.rotate(p, rotation.LEFT),
+  [keys.C]:      (p) => place.hold()
 };
 
-let board = new Board(ctx, ctxNext, ctxHold);
+let place = new Place(ctx, ctxNext, ctxHold);
 
 initSidePanel(ctxNext);
 initSidePanel(ctxHold);
 
 function initSidePanel(ctx) {
-  ctx.canvas.width = 4 * BLOCK_SIZE;
-  ctx.canvas.height = 4 * BLOCK_SIZE;
-  ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+  ctx.canvas.width = 4 * blockSize;
+  ctx.canvas.height = 4 * blockSize;
+  ctx.scale(blockSize, blockSize);
 }
 
 function addEventListener() {
@@ -59,29 +59,29 @@ function addEventListener() {
 }
 
 function handleKeyPress(event) {
-  if (event.keyCode === KEY.P) {
+  if (event.keyCode === keys.P) {
     audioElement.pause();
     pause();
   }
-  if (event.keyCode === KEY.ESC) {
+  if (event.keyCode === keys.ESC) {
     audioElement.pause();
     audioElement.currrentTime = 0;
     end.play();
     gameOver();
   } else if (moves[event.keyCode]) {
     event.preventDefault();
-    let p = moves[event.keyCode](board.piece);
-    if (event.keyCode === KEY.SPACE) {
-      while (board.valid(p)) {
-        account.score += POINTS.HARD_DROP;
-        board.piece.move(p);
-        p = moves[KEY.DOWN](board.piece);
+    let p = moves[event.keyCode](place.piece);
+    if (event.keyCode === keys.SPACE) {
+      while (place.valid(p)) {
+        player.score += points.HARD_DROP;
+        place.piece.move(p);
+        p = moves[keys.DOWN](place.piece);
       }
-      board.piece.hardDrop();
-    } else if (board.valid(p)) {
-      board.piece.move(p);
-      if (event.keyCode === KEY.DOWN) {
-        account.score += POINTS.SOFT_DROP;
+      place.piece.hardDrop();
+    } else if (place.valid(p)) {
+      place.piece.move(p);
+      if (event.keyCode === keys.DOWN) {
+        player.score += points.SOFT_DROP;
       }
     } else
       fall.play();
@@ -89,11 +89,11 @@ function handleKeyPress(event) {
 }
 
 function resetGame() {
-  account.score = 0;
-  account.lines = 0;
-  account.level = 0;
-  board.reset();
-  time = { start: performance.now(), elapsed: 0, level: LEVEL[account.level] };
+  player.score = 0;
+  player.lines = 0;
+  player.level = 0;
+  place.reset();
+  time = { start: performance.now(), elapsed: 0, level: level[player.level] };
 }
 
 let requestId = null;
@@ -117,7 +117,7 @@ function animate(now = 0) {
   time.elapsed = now - time.start;
   if (time.elapsed > time.level) {
     time.start = now;
-    if (!board.drop()) {
+    if (!place.drop()) {
       audioElement.pause();
       audioElement.currentTime = 0;
       gameOver();
@@ -127,7 +127,7 @@ function animate(now = 0) {
 
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  board.draw();
+  place.draw();
   requestId = requestAnimationFrame(animate);
 }
 

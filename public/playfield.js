@@ -1,4 +1,4 @@
-class Board {
+class Place {
   constructor(ctx, ctxNext, ctxHold) {
     this.ctx = ctx;
     this.ctxNext = ctxNext;
@@ -7,15 +7,12 @@ class Board {
   }
 
   init() {
-    // Calculate size of canvas from constants.
-    this.ctx.canvas.width = COLS * BLOCK_SIZE;
-    this.ctx.canvas.height = ROWS * BLOCK_SIZE;
-
-    // Scale so we don't need to give size on every draw.
-    this.ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+    this.ctx.canvas.width = columns * blockSize;
+    this.ctx.canvas.height = rows * blockSize;
+    this.ctx.scale(blockSize, blockSize);
   }
 
-  clearHoldBox() {
+  clearHold() {
     const { width, height } = this.ctxHold.canvas;
     this.ctxHold.clearRect(0, 0, width, height);
     this.ctxHold.piece = false;
@@ -23,7 +20,7 @@ class Board {
 
   reset() {
     this.grid = this.getEmptyGrid();
-    this.clearHoldBox();
+    this.clearHold();
     this.piece = new Piece(this.ctx);
     this.piece.setStartingPosition();
     this.getNewPiece();
@@ -42,14 +39,13 @@ class Board {
   }
 
   drop() {
-    let p = moves[KEY.DOWN](this.piece);
+    let p = moves[keys.DOWN](this.piece);
     if (this.valid(p)) {
       this.piece.move(p);
     } else {
       this.freeze();
       this.clearLines();
       if (this.piece.y === 0) {
-        // Game over
         gameover.play();
         return false;
       }
@@ -66,34 +62,24 @@ class Board {
     let lines = 0;
 
     this.grid.forEach((row, y) => {
-      // If every value is greater than zero then we have a full row.
       if (row.every((value) => value > 0)) {
         lines++;
 
-        // Remove the row.
         this.grid.splice(y, 1);
         clear.play();
         // Add zero filled row at the top.
-        this.grid.unshift(Array(COLS).fill(0));
+        this.grid.unshift(Array(columns).fill(0));
       }
     });
 
     if (lines > 0) {
-      // Calculate points from cleared lines and level.
+      player.score += this.getLinesClearedPoints(lines);
+      player.lines += lines;
 
-      account.score += this.getLinesClearedPoints(lines);
-      account.lines += lines;
-
-      // If we have reached the lines for next level
-      if (account.lines >= LINES_PER_LEVEL) {
-        // Goto next level
-        account.level++;
-
-        // Remove lines so we start working for the next level
-        account.lines -= LINES_PER_LEVEL;
-
-        // Increase speed of game
-        time.level = LEVEL[account.level];
+      if (player.lines >= linesLevel) {
+        player.level++;
+        player.lines -= linesLevel;
+        time.level = level[player.level];
       }
     }
   }
@@ -122,7 +108,7 @@ class Board {
     this.grid.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value > 0) {
-          this.ctx.fillStyle = COLORS[value];
+          this.ctx.fillStyle = colors[value];
           this.ctx.fillRect(x, y, 1, 1);
         }
       });
@@ -130,11 +116,11 @@ class Board {
   }
 
   getEmptyGrid() {
-    return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    return Array.from({ length: rows }, () => Array(columns).fill(0));
   }
 
   isInsideWalls(x, y) {
-    return x >= 0 && x < COLS && y <= ROWS;
+    return x >= 0 && x < columns && y <= rows;
   }
 
   notOccupied(x, y) {
@@ -142,20 +128,15 @@ class Board {
   }
 
   rotate(piece, direction) {
-    // Clone with JSON for immutability.
     let p = JSON.parse(JSON.stringify(piece));
     if (!piece.hardDropped) {
-      // Transpose matrix
-      for (let y = 0; y < p.shape.length; y++) {
-        for (let x = 0; x < y; x++) {
+      for (let y = 0; y < p.shape.length; y++)
+        for (let x = 0; x < y; x++)
           [p.shape[x][y], p.shape[y][x]] = [p.shape[y][x], p.shape[x][y]];
-        }
-      }
-      // Reverse the order of the columns.
-      if (direction === ROTATION.RIGHT) {
+      if (direction === rotation.RIGHT) {
         p.shape.forEach((row) => row.reverse());
         rotate.play();
-      } else if (direction === ROTATION.LEFT) {
+      } else if (direction === rotation.LEFT) {
         p.shape.reverse();
         rotate.play();
       }
@@ -165,12 +146,10 @@ class Board {
 
   swapPieces() {
     if (!this.ctxHold.piece) {
-      // move currentPiece to hold and move nextPiece to board
       this.ctxHold.piece = this.piece;
       this.piece = this.next;
       this.getNewPiece();
     } else {
-      // swap current piece with ctxHold.piece
       let temp = this.piece
       this.piece = this.ctxHold.piece;
       this.ctxHold.piece = temp;
@@ -186,11 +165,9 @@ class Board {
     this.ctxHold.piece.draw();
   }
 
-  swap() {
-    // only swap once.
-    if (this.piece.swapped) {
+  hold() {
+    if (this.piece.swapped)
       return;
-    }
     this.swapPieces();
     this.piece.swapped = true;
     return this.piece;
@@ -199,15 +176,15 @@ class Board {
   getLinesClearedPoints(lines, level) {
     const lineClearPoints =
       lines === 1
-        ? POINTS.SINGLE
+        ? points.SINGLE
         : lines === 2
-        ? POINTS.DOUBLE
+        ? points.DOUBLE
         : lines === 3
-        ? POINTS.TRIPLE
+        ? points.TRIPLE
         : lines === 4
-        ? POINTS.TETRIS
+        ? points.TETRIS
         : 0;
 
-    return (account.level + 1) * lineClearPoints;
+    return (player.level + 1) * lineClearPoints;
   }
 }

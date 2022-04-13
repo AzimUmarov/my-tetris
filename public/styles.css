@@ -3,13 +3,14 @@ body{
 }
 
  button  {
-   background: #fff;
+   background: rgb(177, 167, 167);
    backface-visibility: hidden;
+   border-color: black;
    border-radius: .375rem;
    border-style: solid;
    border-width: .125rem;
    box-sizing: border-box;
-   color: #212121;
+   color: white;
    cursor: pointer;
    display: inline-block;
    font-family: Circular,Helvetica,sans-serif;
@@ -67,19 +68,22 @@ button:not(:disabled):active {
 }
 
 
-#board {
+#game {
   margin-left: 3%;
   margin-top: 3%;
   margin-right: auto ;
   display: flex;
 }
 
-.column-1{
+.game{
   float: left;
 }
 
-.column-2{
+.status{
   margin-left: 30%;
+}
+.status p{
+  font-weight: bold;
 }
 
 .right-column {
@@ -88,7 +92,7 @@ button:not(:disabled):active {
   justify-content: space-between;
 }
 
-.game-board {
+.game-place {
   border: 4px solid rgba(152, 133, 139, 0.85);
 }
 
@@ -102,12 +106,32 @@ button:not(:disabled):active {
   margin-right: 6%;
   margin-left: 1%;
 }
-#holding {
-  color: red;
-  display: block;
-  margin-left: auto;
-  margin-top: 8%;
-  margin-right: auto;
-  width: 70%;
+.status .gray{
+  width: 40%;
+  background-color: gray;
+}
+.controller{
+  width: 10%;
+  margin-right: 20%;
+  margin-top: -28%;
+  float: right
+}
+
+.controller p{
+  margin-top: 0px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+.controller div{
+  display: flex;
+}
+.controller img{
+  margin-right: 20px;
+  margin-bottom:10px;
+  height: 5%;
+  width: 25%;
+}
+.controller .esc{
+  margin-top: -10px;
 }
 

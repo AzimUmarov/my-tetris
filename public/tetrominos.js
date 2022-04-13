@@ -5,9 +5,9 @@ class Piece {
   }
 
   spawn() {
-    this.typeId = this.randomizeTetrominoType(COLORS.length - 1);
-    this.shape = SHAPES[this.typeId];
-    this.color = COLORS[this.typeId];
+    this.typeId = this.randomizeTetromino(colors.length - 1);
+    this.shape = shapes[this.typeId];
+    this.color = colors[this.typeId];
     this.x = 0;
     this.y = 0;
     this.hardDropped = false;
@@ -24,6 +24,14 @@ class Piece {
     });
   }
 
+  randomizeTetromino(noOfTypes) {
+    return Math.floor(Math.random() * noOfTypes + 1);
+  }
+
+  setStartingPosition() {
+    this.x = this.typeId === 4 ? 4 : 3;
+  }
+
   move(p) {
     if (!this.hardDropped) {
       this.x = p.x;
@@ -36,11 +44,4 @@ class Piece {
     this.hardDropped = true;
   }
 
-  setStartingPosition() {
-    this.x = this.typeId === 4 ? 4 : 3;
-  }
-
-  randomizeTetrominoType(noOfTypes) {
-    return Math.floor(Math.random() * noOfTypes + 1);
-  }
 }
